@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>(주)트루베어 | TRUEBEAR Co., Ltd.</title>
+    
+    <!-- 구글 웹폰트 로드 (Montserrat 800 및 Noto Sans KR 로드) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================================================
+           1. 디자인 시스템 변수 설정 (CSS Variables)
+           ========================================================================== */
+        :root {
+            --primary-color: #003366;    /* 메인 신뢰감을 주는 네이비 색상 */
+            --secondary-color: #0066cc;  /* 포인트 파란색 */
+            --accent-color: #e63946;     /* 강조 색상 */
+            --bg-light: #f8f9fa;         /* 밝은 배경색 */
+            --text-dark: #212529;        /* 진한 본문 텍스트 색상 */
+            --text-muted: #6c757d;       /* 연한 보조 텍스트 색상 */
+            --card-shadow: 0 4px 15px rgba(0,0,0,0.08); /* 카드 입체감 그림자 */
+            --transition: all 0.3s ease; /* 부드러운 전환 효과 기본값 */
+        }
+
+        /* ==========================================================================
+           2. 전역 스타일 초기화 및 기본 설정
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            color: var(--text-dark);
+            background-color: #fff;
+            line-height: 1.6;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ==========================================================================
+           3. 상단 고정 네비게이션 헤더 및 로고 디자인 (Montserrat ExtraBold 적용)
+           ========================================================================== */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+        /* 로고 디자인: Montserrat ExtraBold(800) 적용 및 자간 설정 */
+        .logo {
+            font-family: 'Montserrat', 'Noto Sans KR', sans-serif;
+            font-weight: 800;
+            font-size: 1.6rem;
+            color: #16324F;
+            letter-spacing: 1.5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+        .nav-link {
+            font-weight: 500;
+            color: var(--text-dark);
+            padding: 0.5rem 0.8rem;
+            border-radius: 4px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: var(--secondary-color);
+            background-color: rgba(0, 102, 204, 0.05);
+        }
+
+        /* 언어 전환 버튼 (KO / EN) 스타일 */
+        .lang-switch {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: 1rem;
+        }
+        .lang-btn {
+            background: none;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 0.2rem 0.6rem;
+            font-size: 0.85rem;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .lang-btn.active {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        /* ==========================================================================
+           4. 메인 컨텐츠 영역 및 페이지 전환 스크립트 대응부 (SPA 구조)
+           ========================================================================== */
+        main {
+            margin-top: 70px;
+            min-height: calc(100vh - 200px);
+        }
+        .page-section {
+            display: none; /* 기본적으로 모든 페이지는 숨김 처리 */
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+        .page-section.active {
+            display: block; /* 활성화된 페이지만 화면에 노출 */
+            opacity: 1;
+        }
+
+        /* 서브페이지 상단 배너 영역 */
+        .page-banner {
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .page-banner::before {
+            content: '';
+            position: absolute;
+            top:0; left:0; right:0; bottom:0;
+            background: rgba(0, 51, 102, 0.7); /* 배너 어두운 오버레이 레이어 */
+        }
+        .banner-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .banner-title {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        .banner-subtitle {
+            font-size: 1.1rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        /* 컨텐츠 본문 레이아웃 컨테이너 */
+        .content-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+        }
+
+        /* 일반 컨텐츠 판넬 디자인 스타일 */
+        .panel {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--secondary-color);
+            transition: var(--transition);
+            width: 100%;
+        }
+        .panel:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        .panel-title {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+        }
+        .panel-content {
+            color: var(--text-dark);
+            font-size: 1.05rem;
+            word-break: keep-all;
+        }
+
+        /* 사진 + 텍스트 형태의 카드 리스트 공통 스타일 */
+        .card-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 2rem;
+            padding: 2rem 0;
+            border-bottom: 1px solid #e9ecef;
+            transition: var(--transition);
+        }
+        .card-item:last-child {
+            border-bottom: none;
+        }
+        .card-img-wrapper {
+            width: 240px;
+            height: 160px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .card-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .card-item:hover .card-img-wrapper img {
+            transform: scale(1.05);
+        }
+        .card-text-wrapper {
+            flex-grow: 1;
+        }
+        .card-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+        }
+        .card-description {
+            font-size: 1.05rem;
+            color: #333;
+            line-height: 1.6;
+            word-break: keep-all;
+        }
+
+        /* ==========================================================================
+           5. 복리후생 페이지 전용 3열 그리드 카드 스타일
+           ========================================================================== */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .benefit-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.8rem 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-color: var(--secondary-color);
+        }
+        .benefit-icon {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+        .benefit-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.6rem;
+        }
+        .benefit-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            word-break: keep-all;
+        }
+
+        /* ==========================================================================
+           6. 메인페이지(홈) 전용 Hero 섹션 스타일
+           ========================================================================== */
+        .hero-section {
+            height: 50vh;
+            background: linear-gradient(rgba(0, 30, 60, 0.8), rgba(0, 30, 60, 0.8)), 
+                        url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #fff;
+            padding: 0 1rem;
+        }
+        .hero-content h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .hero-content p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        .btn-primary {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: #fff;
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            font-weight: 500;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            background-color: #004d99;
+            transform: scale(1.05);
+        }
+
+        /* ==========================================================================
+           7. 구글 지도 임베드 영역 스타일 (찾아오는 길 페이지)
+           ========================================================================== */
+        .map-container {
+            width: 100%;
+            height: 380px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* ==========================================================================
+           8. 푸터 (Footer) 스타일
+           ========================================================================== */
+        footer {
+            background-color: var(--primary-color);
+            color: #e2e8f0;
+            padding: 2.5rem 1.5rem;
+            font-size: 0.9rem;
+            margin-top: 3rem;
+        }
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .footer-info {
+            line-height: 1.8;
+        }
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1rem;
+            text-align: center;
+            color: #a0aec0;
+        }
+
+        /* ==========================================================================
+           9. 모바일 반응형 미디어 쿼리 (Media Queries)
+           ========================================================================== */
+        @media (max-width: 992px) {
+            .benefits-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            .nav-menu {
+                margin-top: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+            .card-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .card-img-wrapper {
+                width: 100%;
+                height: 200px;
+            }
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================================================
+       상단 네비게이션 헤더 바 (Header)
+       ========================================================================== -->
+    <header>
+        <div class="nav-container">
+            <!-- 클릭 시 메인 홈으로 이동하는 브랜드 로고 (영문 TRUEBEAR) -->
+            <a class="logo" onclick="switchPage('home')">TRUEBEAR</a>
+            <nav style="display: flex; align-items: center;">
+                <!-- 메인 메뉴 리스트 -->
+                <ul class="nav-menu">
+                    <!--<li><a class="nav-link active" onclick="switchPage('home')" id="nav-home">회사 소개</a></li> -->
+                    <li><a class="nav-link" onclick="switchPage('home')" id="nav-about">회사 소개</a></li>
+                    <li><a class="nav-link" onclick="switchPage('business')" id="nav-business">사업 분야</a></li>
+                    <li><a class="nav-link" onclick="switchPage('benefits')" id="nav-benefits">복리후생</a></li>
+                    <li><a class="nav-link" onclick="switchPage('contact')" id="nav-contact">찾아오는 길</a></li>
+                </ul>
+                <!-- 다국어 전환 버튼 (KO / EN) -->
+                <div class="lang-switch">
+                    <button class="lang-btn active" onclick="setLanguage('ko')">KO</button>
+                    <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- ==========================================================================
+           PAGE 1: 메인 (Home) 섹션
+           ========================================================================== -->
+        <section id="page-home" class="page-section active">
+            <div class="hero-section">
+                <div class="hero-content">
+                    <h1 id="hero-title">모빌리티 소프트웨어 검증의 기준</h1>
+                    <p id="hero-subtitle">독립된 소프트웨어 검증 능력을 바탕으로 검증 환경 준비부터 신뢰성있는 최종 테스트 레포트까지 제공합니다.</p>
+                    <a class="btn-primary" onclick="switchPage('business')" id="hero-btn">사업 분야 자세히 보기</a>
+                </div>
+            </div>
+
+            <div class="content-container">
+                <div class="panel">
+                    <div class="panel-title" id="home-p1-title">경영 철학 (Philosophy)</div>
+                    <div class="panel-content" id="home-p1-desc">
+                        (주)트루베어는 <strong>"정직, 신뢰, 정도"</strong>를 최고 가치로 두고 있습니다. 우수한 인재와 최고 수준의 검증 기술력을 바탕으로 고객사가 믿을 수 있는 최상의 품질 결과를 제공하기 위해 끊임없이 노력하고 있습니다.
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title" id="home-p2-title">독립적 워킹 모델 (Working Model)</div>
+                    <div class="panel-content" id="home-p2-desc">
+                        환경 셋업부터 최종 테스트 레포트 발급까지 원스톱으로 처리되는 독립된 소프트웨어 검증 체계를 제공합니다. 
+                        <strong>고객은 주문과 결과 확인만 진행</strong>하시면 되며, 복잡한 내부 인프라 구축 및 실행 과정은 트루베어가 전적으로 책임집니다.
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title" id="home-p3-title">글로벌 모빌리티 혁신 (Global Mobility Innovation)</div>
+                    <div class="panel-content" id="home-p3-desc">
+                        혁신적인 솔루션 개발을 지원하며, 긴밀한 협력을 통해 운영 효율성을 높이고 지속가능성을 촉진하여 시장 경쟁력을 강화합니다. 첨단 기술, 전략적 컨설팅, 지속적인 지원이 트루베어의 핵심입니다.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+           PAGE 2: 회사 소개 (About Us) 섹션
+           ========================================================================== -->
+        <section id="page-about" class="page-section">
+            <div class="page-banner" style="background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80');">
+                <div class="banner-content">
+                    <h2 class="banner-title" id="about-banner-title">회사 소개 (About Us)</h2>
+                    <p class="banner-subtitle" id="about-banner-sub">기술과 사람을 이어 의미있는 연결을 만들어냅니다.</p>
+                </div>
+            </div>
+
+            <div class="content-container">
+                <div style="background: #fff; border-radius: 12px; box-shadow: var(--card-shadow); padding: 2.5rem 2rem;">
+                    <div class="card-item">
+                        <div class="card-img-wrapper">
+                            <img data-i18n-alt="0" src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=600&q=80" alt="대표이사 인사말">
+                        </div>
+                        <div class="card-text-wrapper">
+                            <div class="card-title" id="about-greeting-title">대표이사 인사말</div>
+                            <div class="card-description" id="about-greeting-desc">
+                                트루베어는 2025년에 설립된 모빌리티 시스템의 소프트웨어 검증 전문 기업으로, 특히 차량용 인포테인먼트(IVI) 시스템의 소프트웨어 개발 사업에 참여하여 고도화된 소프트웨어 검증을 수행하고 있습니다.<br><br>
+                                "신뢰성"을 기업의 최고 가치로 두고 있으며, 우수한 전문 인재를 통해 고객사에 더욱 완벽하고 믿을 수 있는 결과를 제공하기 위해 끊임없이 혁신하고 있습니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+           PAGE 3: 사업 분야 (Business Areas) 섹션 (로컬 이미지 적용)
+           ========================================================================== -->
+        <section id="page-business" class="page-section">
+            <div class="page-banner" style="background-image: url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1600&q=80');">
+                <div class="banner-content">
+                    <h2 class="banner-title" id="biz-banner-title">사업 분야 (Business Areas)</h2>
+                    <p class="banner-subtitle" id="biz-banner-sub">차량용 소프트웨어 검증부터 기업 전용 모빌리티 운영까지 종합 솔루션 제공</p>
+                </div>
+            </div>
+
+            <div class="content-container">
+                <div style="background: #fff; border-radius: 12px; box-shadow: var(--card-shadow); padding: 2.5rem 2rem;">
+                    
+                    <!-- 01. 자동차 소프트웨어 검증 -->
+                    <div class="card-item">
+                        <div class="card-img-wrapper">
+                            <img data-i18n-alt="1" src="./images/inside_info.jpg" alt="자동차 소프트웨어 검증">
+                        </div>
+                        <div class="card-text-wrapper">
+                            <div class="card-title" style="font-size: 1.2rem; margin-bottom: 0.2rem;" id="biz-1-eng">01. 자동차 소프트웨어 검증</div>
+                            <div style="font-size: 0.95rem; color: #6c757d; margin-bottom: 0.8rem; font-weight: 500;" id="biz-1-kor">Automotive Software Validation</div>
+                            <div class="card-description" id="biz-1-desc">
+                                IVI, 내비게이션, 음성인식, 커넥티비티 및 차량 소프트웨어의 기능·통합·시스템 검증
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 02. 테스트 자동화 및 엔지니어링 -->
+                    <div class="card-item">
+                        <div class="card-img-wrapper">
+                            <img data-i18n-alt="2" src="./images/testbench.jpg" alt="테스트 자동화 및 엔지니어링">
+                        </div>
+                        <div class="card-text-wrapper">
+                            <div class="card-title" style="font-size: 1.2rem; margin-bottom: 0.2rem;" id="biz-2-eng">02. 테스트 자동화 및 엔지니어링</div>
+                            <div style="font-size: 0.95rem; color: #6c757d; margin-bottom: 0.8rem; font-weight: 500;" id="biz-2-kor">Test Automation & Engineering</div>
+                            <div class="card-description" id="biz-2-desc">
+                                테스트 자동화 개발, Test Bench 구축·통합·유지보수, 테스트 환경 기술 지원
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 03. 실차 검증 및 현장 엔지니어링 -->
+                    <div class="card-item">
+                        <div class="card-img-wrapper">
+                            <img data-i18n-alt="3" src="./images/camo.jpg" alt="실차 검증 및 현장 엔지니어링">
+                        </div>
+                        <div class="card-text-wrapper">
+                            <div class="card-title" style="font-size: 1.2rem; margin-bottom: 0.2rem;" id="biz-3-eng">03. 실차 검증 및 현장 엔지니어링</div>
+                            <div style="font-size: 0.95rem; color: #6c757d; margin-bottom: 0.8rem; font-weight: 500;" id="biz-3-kor">Vehicle Testing & Field Engineering</div>
+                            <div class="card-description" id="biz-3-desc">
+                                실제 차량 기반 기능 검증, 주행 시험, 데이터 수집, 테스트 차량 운영 및 현장 지원
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 04. 품질 엔지니어링 및 품질보증 -->
+                    <div class="card-item">
+                        <div class="card-img-wrapper">
+                            <img data-i18n-alt="4" src="./images/test_software.jpg" alt="품질 엔지니어링 및 품질보증">
+                        </div>
+                        <div class="card-text-wrapper">
+                            <div class="card-title" style="font-size: 1.2rem; margin-bottom: 0.2rem;" id="biz-4-eng">04. 품질 엔지니어링 및 품질보증</div>
+                            <div style="font-size: 0.95rem; color: #6c757d; margin-bottom: 0.8rem; font-weight: 500;" id="biz-4-kor">Quality Engineering & Assurance</div>
+                            <div class="card-description" id="biz-4-desc">
+                                테스트 전략, 결함 관리, 품질 프로세스 개선, 품질 지표 및 검증 결과 관리
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 05. 기술 컨설팅 및 프로젝트 지원 -->
+                    <div class="card-item">
+                        <div class="card-img-wrapper">
+                            <img data-i18n-alt="5" src="./images/meeting.jpg" alt="기술 컨설팅 및 프로젝트 지원">
+                        </div>
+                        <div class="card-text-wrapper">
+                            <div class="card-title" style="font-size: 1.2rem; margin-bottom: 0.2rem;" id="biz-5-eng">05. 기술 컨설팅 및 프로젝트 지원</div>
+                            <div style="font-size: 0.95rem; color: #6c757d; margin-bottom: 0.8rem; font-weight: 500;" id="biz-5-kor">Technical Consulting & Project Support</div>
+                            <div class="card-description" id="biz-5-desc">
+                                기술 타당성 검토, 프로젝트 계획 수립, 기술 문제 해결, OEM·공급업체 협업 및 프로젝트 운영 자문
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 06. 기업 전용 모빌리티 운영 지원 -->
+                    <div class="card-item">
+                        <div class="card-img-wrapper">
+                            <img data-i18n-alt="6" src="./images/vehiclewithguest.jpg" alt="기업 전용 모빌리티 운영 지원">
+                        </div>
+                        <div class="card-text-wrapper">
+                            <div class="card-title" style="font-size: 1.2rem; margin-bottom: 0.2rem;" id="biz-6-eng">06. 기업 전용 모빌리티 운영 지원</div>
+                            <div style="font-size: 0.95rem; color: #6c757d; margin-bottom: 0.8rem; font-weight: 500;" id="biz-6-kor">Corporate Mobility Operations</div>
+                            <div class="card-description" id="biz-6-desc">
+                                기업 소유·운영 차량의 업무상 운전 지원, 출장자 이동, 장거리 차량 운행, 테스트 차량 이동 및 비정기 차량 운영
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+           PAGE 5: 복리후생 (Benefits & Welfare) 섹션
+           ========================================================================== -->
+        <section id="page-benefits" class="page-section">
+            <div class="page-banner" style="background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80');">
+                <div class="banner-content">
+                    <h2 class="banner-title" id="benefits-banner-title">복리후생 (Benefits & Welfare)</h2>
+                    <p class="banner-subtitle" id="benefits-banner-sub">임직원의 삶의 질 향상과 업무 몰입 환경을 위한 트루베어의 다양한 지원</p>
+                </div>
+            </div>
+
+            <div class="content-container">
+                <div class="panel" style="margin-bottom: 2rem;">
+                    <div class="panel-title" id="benefits-intro-title">즐겁게 몰입할 수 있는 환경을 만듭니다</div>
+                    <div class="panel-content" id="benefits-intro-desc">
+                        트루베어는 임직원 개개인의 삶의 질 향상과 즐거운 연구 및 업무 몰입 환경을 위해 다양한 인사제도와 복리후생을 운영하고 있습니다.
+                    </div>
+                </div>
+
+                <!-- 복리후생 9가지 항목 카드 그리드 -->
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🎁</div>
+                        <div class="benefit-title" id="b1-title">경조금 지원</div>
+                        <div class="benefit-desc" id="b1-desc">임직원의 기쁜 일과 슬픈 일을 함께 나눕니다. 경조사 발생 시 소정의 경조금과 휴가 등 편의를 제공합니다.</div>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🍽️</div>
+                        <div class="benefit-title" id="b2-title">조직문화 개선 (랜덤회식)</div>
+                        <div class="benefit-desc" id="b2-desc">각 부서 간의 긴밀한 유대와 친목 도모를 위해 분기별로 랜덤하게 팀을 매칭하여 유쾌한 교류 식사 자리를 지원합니다.</div>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">✈️</div>
+                        <div class="benefit-title" id="b3-title">샌드위치 유급 휴가</div>
+                        <div class="benefit-desc" id="b3-desc">공휴일 사이의 평일(샌드위치데이)에는 유급으로 휴가를 제공하여, 리프레쉬를 제공합니다.</div>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📱</div>
+                        <div class="benefit-title" id="b4-title">통신비 지원</div>
+                        <div class="benefit-desc" id="b4-desc">업무 연동성 향상과 실무 효율성 증진을 위해 개인 통신 요금의 일부를 회사 가이드에 맞춰 정기적으로 보조합니다.</div>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🔤</div>
+                        <div class="benefit-title" id="b5-title">글로벌 교육 지원</div>
+                        <div class="benefit-desc" id="b5-desc">외국어 역량(영어, 독일어 등) 향상 및 자기계발을 희망하는 전 임직원을 대상으로 교육 프로세스를 유연하게 지원합니다.</div>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🎉</div>
+                        <div class="benefit-title" id="b6-title">축하 선물 지급</div>
+                        <div class="benefit-desc" id="b6-desc">임직원의 기쁜 날과 의미 있는 성장을 함께 축하합니다. 매년 생일을 맞이한 임직원 및 직무 관련 전문 자격증 취득자에게 특별 선물을 지급합니다.</div>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🧧</div>
+                        <div class="benefit-title" id="b7-title">명절 상품권 지급</div>
+                        <div class="benefit-desc" id="b7-desc">설날과 추석 등 고유 명절을 맞이하여 임직원 가족 모두가 풍요로운 시간을 보낼 수 있도록 명절 상품권을 제공합니다.</div>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📚</div>
+                        <div class="benefit-title" id="b8-title">업무 도서비 지원</div>
+                        <div class="benefit-desc" id="b8-desc">소프트웨어 검증 기술 및 최신 트렌드 지식 습득을 적극 장려합니다. 업무 연관 도서 구입비를 전액 지원합니다.</div>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">⏰</div>
+                        <div class="benefit-title" id="b9-title">탄력 근무제 운영</div>
+                        <div class="benefit-desc" id="b9-desc">오전 8시~10시 사이 자율 출근 및 오후 5시~7시 사이 자율 퇴근 프로세스 안에서 주 40시간 유연 근무를 보장합니다.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+           PAGE 6: 찾아오는 길 & 연락처 (Contact Us) 섹션 (로컬 배너 적용)
+           ========================================================================== -->
+        <section id="page-contact" class="page-section">
+            <div class="page-banner" style="background-image: url('./images/banner_contact.jpg');">
+                <div class="banner-content">
+                    <h2 class="banner-title" id="contact-banner-title">찾아오는 길 & 연락처 (Contact Us)</h2>
+                    <p class="banner-subtitle" id="contact-banner-sub">트루베어는 언제나 고객 여러분과의 소통에 열려 있습니다.</p>
+                </div>
+            </div>
+
+            <div class="content-container">
+                <div class="panel">
+                    <div class="panel-title" id="contact-info-title">오시는 길 및 본사 정보</div>
+                    <div class="panel-content">
+                        <ul style="list-style: none; line-height: 2; font-size: 1.05rem;" id="contact-details">
+                            <li><strong>회사명:</strong> (주)트루베어 (TRUEBEAR Co., Ltd.)</li>
+                            <li><strong>대표이사:</strong> 주진일</li>
+                            <li><strong>사업자등록번호:</strong> 629-88-03577</li>
+                            <li><strong>주소:</strong> 경기도 용인시 수지구 포은대로 59번길 37, 905-C20호</li>
+                            <li><strong>이메일 (E-mail):</strong> info.truebear@gmail.com</li>
+                        </ul>
+                        
+                        <!-- 구글 맵 임베드 라이브 지도 연동 영역 -->
+                        <div class="map-container">
+                            <iframe title="트루베어 본사 위치 지도" 
+                                
+                                src="https://www.google.com/maps/embed?pb=!1m5!3m3!1m2!1s0x357b5b49d24d39e9%3A0xc213e6104020cc47!2z7Iuc6re464uI7LKY6rSR6rWQIDHssKg!5e0!3m2!1sko!2skr!4v1793424441751!5m2!1sko!2skr"
+
+                                allowfullscreen="" 
+                                loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade">
+                            </iframe>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==========================================================================
+       하단 푸터 영역 (Footer)
+       ========================================================================== -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-info" id="footer-info">
+                <strong>(주)트루베어 (TRUEBEAR Co., Ltd.)</strong> | 대표이사: 주진일 | 사업자등록번호: 629-88-03577<br>
+                주소: 경기도 용인시 수지구 포은대로 59번길 37, 905-C20호<br>
+                E-mail: info.truebear@gmail.com
+            </div>
+            <div class="footer-bottom" id="footer-bottom">
+                &copy; 2025-2026 TRUEBEAR Co., Ltd. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==========================================================================
+       자바스크립트 제어 영역 (SPA 페이지 전환 및 다국어 i18n 처리 스크립트)
+       ========================================================================== -->
+    <script>
+        // Edit Korean copy in the markup above; edit English translations here.
+        // Korean markup is captured before switching so formatting is restored exactly.
+        const i18n = { en: {
+  "nav-home": "Home",
+  "nav-about": "About Us",
+  "nav-business": "Business Areas",
+  "nav-benefits": "Benefits",
+  "nav-contact": "Contact Us",
+  "hero-title": "Setting the Standard for Mobility Software Validation",
+  "hero-subtitle": "Independent software validation, from test environment setup to reliable final test reports.",
+  "hero-btn": "Explore Our Business Areas",
+  "home-p1-title": "Our Philosophy",
+  "home-p1-desc": "At TRUEBEAR Co., Ltd., <strong>honesty, trust, and integrity</strong> are our core values. With exceptional talent and advanced validation expertise, we continually strive to deliver the highest-quality results our clients can rely on.",
+  "home-p2-title": "Our Independent Delivery Model",
+  "home-p2-desc": "We provide an independent, end-to-end software validation service, from environment setup to the final test report. <strong>Clients simply place an order and review the results.</strong> TRUEBEAR takes full responsibility for the complex infrastructure setup and execution.",
+  "home-p3-title": "Global Mobility Innovation",
+  "home-p3-desc": "We support the development of innovative solutions and work closely with our clients to improve operational efficiency, advance sustainability, and strengthen market competitiveness. Advanced technology, strategic consulting, and ongoing support are at the heart of TRUEBEAR.",
+  "about-banner-title": "About Us",
+  "about-banner-sub": "Creating meaningful connections between technology and people.",
+  "about-greeting-title": "Message from the CEO",
+  "about-greeting-desc": "Founded in 2025, TRUEBEAR specializes in software validation for mobility systems. We deliver advanced software validation as part of automotive software development projects, with a particular focus on in-vehicle infotainment (IVI) systems.<br><br>Reliability is our highest corporate value. Our skilled professionals continually innovate to deliver more complete, dependable results for our clients.",
+  "biz-banner-title": "Business Areas",
+  "biz-banner-sub": "Comprehensive solutions, from automotive software validation to corporate mobility operations.",
+  "benefits-banner-title": "Employee Benefits",
+  "benefits-banner-sub": "Supporting our people with benefits that enhance quality of life and help them focus at work.",
+  "benefits-intro-title": "An Environment Where People Enjoy Doing Their Best Work",
+  "benefits-intro-desc": "TRUEBEAR offers a range of people policies and employee benefits to improve each employee’s quality of life and create an engaging environment for research and focused work.",
+  "contact-banner-title": "Location & Contact",
+  "contact-banner-sub": "We are always ready to hear from you.",
+  "contact-info-title": "Directions & Head Office Information",
+  "contact-details": "<li><strong>Company:</strong> TRUEBEAR Co., Ltd.</li><li><strong>CEO:</strong> Ju Jin-il</li><li><strong>Business Registration Number:</strong> 629-88-03577</li><li><strong>Address:</strong> Suite 905-C20, 37, Poeun-daero 59beon-gil, Suji-gu, Yongin-si, Gyeonggi-do, South Korea</li><li><strong>Email:</strong> info.truebear@gmail.com</li>",
+  "footer-info": "<strong>TRUEBEAR Co., Ltd.</strong> | CEO: Ju Jin-il | Business Registration Number: 629-88-03577<br>Address: Suite 905-C20, 37, Poeun-daero 59beon-gil, Suji-gu, Yongin-si, Gyeonggi-do, South Korea<br>Email: info.truebear@gmail.com",
+  "footer-bottom": "&copy; 2025-2026 TRUEBEAR Co., Ltd. All Rights Reserved.",
+  "biz-1-eng": "01. Automotive Software Validation",
+  "biz-1-kor": "Automotive Software Validation",
+  "biz-1-desc": "Functional, integration, and system validation for IVI, navigation, voice recognition, connectivity, and vehicle software.",
+  "biz-2-eng": "02. Test Automation & Engineering",
+  "biz-2-kor": "Test Automation & Engineering",
+  "biz-2-desc": "Test automation development; test bench setup, integration, and maintenance; and technical support for test environments.",
+  "biz-3-eng": "03. Vehicle Testing & Field Engineering",
+  "biz-3-kor": "Vehicle Testing & Field Engineering",
+  "biz-3-desc": "In-vehicle functional validation, road testing, data collection, test vehicle operations, and on-site support.",
+  "biz-4-eng": "04. Quality Engineering & Assurance",
+  "biz-4-kor": "Quality Engineering & Assurance",
+  "biz-4-desc": "Test strategy, defect management, quality process improvement, and management of quality metrics and validation results.",
+  "biz-5-eng": "05. Technical Consulting & Project Support",
+  "biz-5-kor": "Technical Consulting & Project Support",
+  "biz-5-desc": "Technical feasibility reviews, project planning, technical troubleshooting, OEM and supplier collaboration, and project operations consulting.",
+  "biz-6-eng": "06. Corporate Mobility Operations",
+  "biz-6-kor": "Corporate Mobility Operations",
+  "biz-6-desc": "Business driving support for company-owned or company-operated vehicles, transportation for business travelers, long-distance driving, test vehicle transfers, and ad hoc vehicle operations.",
+  "b1-title": "Support for Major Life Events",
+  "b1-desc": "We stand by our employees through life’s celebrations and difficult moments, providing financial support, leave, and other assistance for qualifying family events.",
+  "b2-title": "Cross-Team Social Meals",
+  "b2-desc": "Each quarter, we randomly match teams for company-supported meals to build closer connections and encourage friendly exchanges across departments.",
+  "b3-title": "Paid Bridge Days",
+  "b3-desc": "We provide paid leave on working days between public holidays, giving employees extra time to rest and recharge.",
+  "b4-title": "Mobile Phone Allowance",
+  "b4-desc": "We regularly subsidize a portion of employees’ personal phone bills in line with company guidelines to support work connectivity and efficiency.",
+  "b5-title": "Language Learning & Development",
+  "b5-desc": "We offer flexible learning support to all employees who wish to improve their foreign language skills, including English and German, and pursue personal development.",
+  "b6-title": "Celebration Gifts",
+  "b6-desc": "We celebrate our employees’ special moments and professional growth with gifts for their birthdays each year and for earning job-related professional certifications.",
+  "b7-title": "Holiday Gift Certificates",
+  "b7-desc": "We provide gift certificates for traditional holidays such as Seollal and Chuseok, helping employees and their families enjoy the celebrations.",
+  "b8-title": "Work-Related Books",
+  "b8-desc": "We encourage employees to build their knowledge of software validation and the latest industry trends by fully reimbursing purchases of work-related books.",
+  "b9-title": "Flexible Working Hours",
+  "b9-desc": "Our flexible 40-hour workweek allows employees to start between 8:00 and 10:00 a.m. and finish between 5:00 and 7:00 p.m."
+}, ko: {} };
+        Object.keys(i18n.en).forEach(id => {
+            const element = document.getElementById(id);
+            if (element) i18n.ko[id] = element.innerHTML;
+        });
+        const imageDescriptions = [
+  {
+    "ko": "대표이사 인사말",
+    "en": "Message from the CEO"
+  },
+  {
+    "ko": "자동차 소프트웨어 검증",
+    "en": "Automotive Software Validation"
+  },
+  {
+    "ko": "테스트 자동화 및 엔지니어링",
+    "en": "Test Automation & Engineering"
+  },
+  {
+    "ko": "실차 검증 및 현장 엔지니어링",
+    "en": "Vehicle Testing & Field Engineering"
+  },
+  {
+    "ko": "품질 엔지니어링 및 품질보증",
+    "en": "Quality Engineering & Assurance"
+  },
+  {
+    "ko": "기술 컨설팅 및 프로젝트 지원",
+    "en": "Technical Consulting & Project Support"
+  },
+  {
+    "ko": "기업 전용 모빌리티 운영 지원",
+    "en": "Corporate Mobility Operations"
+  }
+];
+        const pageTitles = { ko: '(주)트루베어 | TRUEBEAR Co., Ltd.', en: 'TRUEBEAR Co., Ltd. | Mobility Software Validation' };
+        let currentLang = 'ko';
+        function switchPage(pageId) {
+            const sections = document.querySelectorAll('.page-section');
+            sections.forEach(sec => sec.classList.remove('active'));
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => link.classList.remove('active'));
+
+            const targetSection = document.getElementById(`page-${pageId}`);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            const targetNav = document.getElementById(`nav-${pageId}`);
+            if (targetNav) {
+                targetNav.classList.add('active');
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+
+        function setLanguage(lang) {
+            if (!Object.prototype.hasOwnProperty.call(i18n, lang)) return;
+            currentLang = lang;
+            Object.entries(i18n[lang]).forEach(([id, content]) => {
+                const element = document.getElementById(id);
+                if (element) element.innerHTML = content;
+            });
+            document.querySelectorAll('[data-i18n-alt]').forEach(img => {
+                img.alt = imageDescriptions[Number(img.dataset.i18nAlt)][lang];
+            });
+            document.documentElement.lang = lang;
+            document.title = pageTitles[lang];
+            document.querySelector('.map-container iframe').title = lang === 'ko' ? '트루베어 본사 위치 지도' : 'TRUEBEAR head office location map';
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                const active = btn.textContent.trim().toLowerCase() === lang;
+                btn.classList.toggle('active', active);
+                btn.setAttribute('aria-pressed', String(active));
+            });
+        }
+        // Keep translated content clear of the fixed header at every screen size.
+        function fitTranslatedLayout() {
+            document.querySelector('main').style.marginTop = document.querySelector('header').offsetHeight + 'px';
+            const hero = document.querySelector('.hero-section');
+            hero.style.minHeight = (document.querySelector('.hero-content').offsetHeight + 32) + 'px';
+        }
+        new ResizeObserver(fitTranslatedLayout).observe(document.querySelector('header'));
+        new ResizeObserver(fitTranslatedLayout).observe(document.querySelector('.hero-content'));
+        window.addEventListener('resize', fitTranslatedLayout);
+        setLanguage('ko');
+        fitTranslatedLayout();
+</script>
+</body>
+</html>
